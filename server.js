@@ -7,15 +7,20 @@ const { db } = require('./src/db/mongoose');
 const rfs = require('rotating-file-stream');
 const morgan = require('morgan');
 const path = require('path');
+const cors = require('cors');
 //---------------------------------------------------
 db(); //db connect-----------------------------------
-
+const corsOptions = {
+    exposedHeaders: 'x-auth ',
+};
+app.use(express.json());
+app.use(cors(corsOptions));
 const accessLogStream = rfs.createStream('httpLoger.log', {
     interval: '1d',
     path: path.resolve(__dirname + '/src/logs'),
 });
 app.use(morgan('combined', { stream: accessLogStream }));
-
+app.use('/api/index', require('./src/routes/index'));
 const port = process.env.PORT || 5000;
 httpServer.listen(port, () => {
     console.log(`server is running on port ${port}`);
