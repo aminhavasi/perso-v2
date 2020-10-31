@@ -21,6 +21,7 @@ const accessLogStream = rfs.createStream('httpLoger.log', {
 });
 app.use(morgan('combined', { stream: accessLogStream }));
 app.use('/api/index', require('./src/routes/index'));
+app.use('/api/auth', require('./src/routes/auth'));
 const port = process.env.PORT || 5000;
 httpServer.listen(port, () => {
     console.log(`server is running on port ${port}`);
