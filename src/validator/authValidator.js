@@ -39,5 +39,16 @@ const recoveryValidator = (body) => {
 
     return schema.validate(body);
 };
+const recoveryPassValidator = (body) => {
+    const schema = Joi.object({
+        password: Joi.string().min(8).max(1024).required(),
+    });
+    return schema.validate(body);
+};
 
-module.exports = { registerValidator, loginValidator, recoveryValidator };
+module.exports = {
+    registerValidator,
+    loginValidator,
+    recoveryValidator,
+    recoveryPassValidator,
+};

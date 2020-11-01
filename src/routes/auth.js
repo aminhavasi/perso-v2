@@ -6,6 +6,7 @@ const {
     registerValidator,
     loginValidator,
     recoveryValidator,
+    recoveryPassValidator,
 } = require('./../validator/authValidator');
 const { errorHandler } = require('./../helper/errors');
 const genRecoveryToken = require('./../helper/recoveryToken');
@@ -99,6 +100,27 @@ router.post('/recovery', async (req, res) => {
         else {
             console.log(err);
             res.status(400).send('something went wrong');
+        }
+    }
+});
+
+router.post('/reset', async (req, res) => {
+    try {
+        const { error } = await recoveryPassValidator(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+        let token = await Recovery.findOne({ token: req.query.token });
+        if (!token) throw errorHandler('Access denid!', 1004);
+
+        const user = await User.findOne({ _id: token.user });
+        user.set({ password: req.body.password });
+        await user.save();
+        await Recovery.findByIdAndDelete({ _id: token._id });
+
+        res.status(200).send('success change password');
+    } catch (err) {
+        if (err.code === 1004) res.status(404).send(err.message);
+        else {
+            res.status(400).send(err);
         }
     }
 });
