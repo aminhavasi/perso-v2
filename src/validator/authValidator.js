@@ -31,4 +31,13 @@ const loginValidator = (user) => {
     return schema.validate(user);
 };
 
-module.exports = { registerValidator, loginValidator };
+const recoveryValidator = (body) => {
+    const schema = Joi.object({
+        email: Joi.string().min(5).max(255).email(),
+        username: Joi.string().min(3).max(255).regex(usernamePattern),
+    }).xor('email', 'username');
+
+    return schema.validate(body);
+};
+
+module.exports = { registerValidator, loginValidator, recoveryValidator };

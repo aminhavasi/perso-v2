@@ -119,6 +119,11 @@ userSchema.virtual('user', {
     localField: '_id',
     foreignField: 'user',
 });
+userSchema.virtual('user', {
+    ref: 'Recovery',
+    localField: '_id',
+    foreignField: 'user',
+});
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
