@@ -1,4 +1,8 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const Token = require('./loginToken');
+
 const regexValidator = /^(13[0-9][0-9]|14[0-4][0-9]|1450)[-/](0?[1-9]|1[0-2])[-/](0?[1-9]|[12][0-9]|3[01])$/;
 const userSchema = new mongoose.Schema({
     name: {
@@ -60,6 +64,60 @@ const userSchema = new mongoose.Schema({
             },
         },
     },
+});
+
+userSchema.pre('save', function (next) {
+    let user = this;
+    if (user.isModified('password')) {
+        bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(user.password, salt, (err, hash) => {
+                user.password = hash;
+                next();
+            });
+        });
+    } else {
+        next();
+    }
+});
+
+userSchema.statics.findByCredentials = async function (body) {
+    let User = this;
+    let user = null;
+    if (body.email) {
+        user = await User.findOne({ email: body.email });
+    } else if (body.username) {
+        user = await User.findOne({ username: body.username });
+    }
+    if (!user) {
+        return Promise.reject('not');
+    }
+
+    return new Promise((resolve, reject) => {
+        bcrypt.compare(body.password, user.password, (err, res) => {
+            if (res) {
+                resolve(user);
+            } else {
+                reject('not');
+            }
+        });
+    });
+};
+
+userSchema.methods.genAuthToken = function () {
+    let user = this;
+    let token = jwt
+        .sign({ _id: user._id.toHexString() }, process.env.JWT_CONF)
+        .toString();
+
+    const newToken = new Token({ user: user._id, token });
+    newToken.save();
+    return token;
+};
+
+userSchema.virtual('user', {
+    ref: 'Token',
+    localField: '_id',
+    foreignField: 'user',
 });
 
 const User = mongoose.model('User', userSchema);
