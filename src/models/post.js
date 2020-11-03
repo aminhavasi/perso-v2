@@ -26,6 +26,8 @@ const postSchema=new mongoose.Schema({
     },
     content:{
         type:String,
+        minlength:3,
+
         required:true,
 
     },

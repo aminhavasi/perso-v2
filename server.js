@@ -19,6 +19,8 @@ const accessLogStream = rfs.createStream('httpLoger.log', {
     interval: '1d',
     path: path.resolve(__dirname + '/src/logs'),
 });
+
+
 app.use(morgan('combined', { stream: accessLogStream }));
 app.use('/api/index', require('./src/routes/index'));
 app.use('/api/auth', require('./src/routes/auth'));

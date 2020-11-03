@@ -106,7 +106,7 @@ userSchema.statics.findByCredentials = async function (body) {
 userSchema.methods.genAuthToken = function () {
     let user = this;
     let token = jwt
-        .sign({ _id: user._id.toHexString() }, process.env.JWT_CONF)
+        .sign({ _id: user._id.toHexString() ,access:user.adminLevel}, process.env.JWT_CONF)
         .toString();
 
     const newToken = new Token({ user: user._id, token });
