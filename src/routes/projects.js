@@ -5,6 +5,8 @@ const {createProjectValidator}=require('./../validator/projectsValidator')
 
 //admin projects
 
+
+///
 router.post('/create',async(req,res)=>{
     try {
         const {error}=await createProjectValidator(req.body)
